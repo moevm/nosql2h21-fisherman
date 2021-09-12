@@ -3,7 +3,6 @@
 const app = require('../app');
 const debug = require('debug')('fisherman:server');
 const http = require('http');
-const mongoose = require("mongoose");
 
 const port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
@@ -52,12 +51,4 @@ function onListening() {
         ? 'pipe ' + address
         : 'port ' + address.port;
     debug('Listening on ' + bind);
-}
-
-function helloWorld() {
-    mongoose.connect('mongodb://localhost/test');
-    const Hello = mongoose.model("Hello", {name: String});
-
-    const hello = new Hello({name: "World"});
-    hello.save();
 }
