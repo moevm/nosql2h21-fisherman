@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 const MongoClient = require('mongodb').MongoClient;
 const mongoClient = new MongoClient("mongodb://localhost:27017/");
 
@@ -37,6 +37,14 @@ router.get('/orders', function (req, res, next) {
 
 router.get('/users', function (req, res, next) {
     usersCollection.find({}).toArray((err, users) => {
+        if (err) return console.log(err);
+        res.json(users);
+    });
+});
+
+router.get('/users/:login', function (req, res, next) {
+    let login = req.params.login;
+    usersCollection.find({login}).toArray((err, users) => {
         if (err) return console.log(err);
         res.json(users);
     });
