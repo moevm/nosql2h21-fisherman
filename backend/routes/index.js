@@ -1,16 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require("mongoose");
-mongoose.connect('mongodb://localhost/test');
-const Hello = mongoose.model("Hello", {name: String});
+const MongoClient = require('mongodb').MongoClient;
+const mongoClient = new MongoClient("mongodb://localhost:27017/");
+
+let clientDB;
+let productsCollection;
+let usersCollection;
+let ordersCollection;
+
+mongoClient.connect(function(err, client){
+    if(err) return console.log(err);
+    clientDB = client.db("Fisherman");
+
+    productsCollection = clientDB.collection("Products");
+    usersCollection = clientDB.collection("Users");
+    ordersCollection = clientDB.collection("Orders");
+});
 
 router.get('/', function (req, res, next) {
     res.render('index', {title: 'Express'});
 });
 
-router.get('/test', function (req, res, next) {
-    let answer = helloWorld();
-    res.json(answer);
+router.get('/products', function (req, res, next) {
+    productsCollection.find({}).toArray((err, products) => {
+        if (err) return console.log(err);
+        res.json(products);
+    });
 });
 
 router.get('*', (req, res) => {
