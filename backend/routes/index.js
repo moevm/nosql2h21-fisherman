@@ -50,6 +50,14 @@ router.get('/users/:login', function (req, res, next) {
     });
 });
 
+router.get('/products/:title', function (req, res, next) {
+    let title = new RegExp([req.params.title].join(""), "i");
+    productsCollection.find({title: title}).toArray((err, products) => {
+        if (err) return console.log(err);
+        res.json(products);
+    });
+});
+
 router.get('*', (req, res) => {
     res.status(404);
     res.end();
