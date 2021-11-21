@@ -28,15 +28,23 @@ router.get('/products', function (req, res, next) {
     });
 });
 
+router.get('/orders', function (req, res, next) {
+    ordersCollection.find({}).toArray((err, orders) => {
+        if (err) return console.log(err);
+        res.json(orders);
+    });
+});
+
+router.get('/users', function (req, res, next) {
+    usersCollection.find({}).toArray((err, users) => {
+        if (err) return console.log(err);
+        res.json(users);
+    });
+});
+
 router.get('*', (req, res) => {
     res.status(404);
     res.end();
 });
-
-function helloWorld() {
-    const hello = new Hello({name: "World"});
-    hello.save();
-    return hello.toJSON();
-}
 
 module.exports = router;
