@@ -43,7 +43,7 @@ router.get('/users', function (req, res, next) {
 });
 
 router.get('/users/:login', function (req, res, next) {
-    let login = req.params.login;
+    const login = req.params.login;
     usersCollection.find({login}).toArray((err, users) => {
         if (err) return console.log(err);
         res.json(users);
@@ -51,11 +51,16 @@ router.get('/users/:login', function (req, res, next) {
 });
 
 router.get('/products/:title', function (req, res, next) {
-    let title = new RegExp([req.params.title].join(""), "i");
+    const title = new RegExp([req.params.title].join(""), "i");
     productsCollection.find({title: title}).toArray((err, products) => {
         if (err) return console.log(err);
         res.json(products);
     });
+});
+
+router.post('/deleteProduct', (req, res) => {
+    const id = req.body.id;
+    productsCollection.deleteOne({_id: id});
 });
 
 router.get('*', (req, res) => {
