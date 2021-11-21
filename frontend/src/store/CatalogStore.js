@@ -58,7 +58,7 @@ class Catalog {
   get = () => {
     console.log("getCatalog");
     this.isLoading = true;
-    fetch("http://localhost:8080/catalog")
+    fetch("http://localhost:8080/products")
         .then(res => res.json())
             .then(json => {
                     if (json) {
@@ -68,7 +68,6 @@ class Catalog {
                     }
                 })
         .catch((e) => console.log(e.message));
-    
   };
 
 }
