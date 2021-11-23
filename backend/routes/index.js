@@ -63,6 +63,15 @@ router.post('/deleteProduct', (req, res) => {
     productsCollection.deleteOne({_id: id});
 });
 
+router.post('/addUser', (req, res) => {
+    usersCollection.insertOne({
+        login: req.body.login,
+        password: req.body.password,
+        email: req.body.email,
+        phone: req.body.phone
+    });
+});
+
 router.get('*', (req, res) => {
     res.status(404);
     res.end();
