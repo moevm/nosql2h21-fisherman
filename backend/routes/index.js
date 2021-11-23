@@ -35,18 +35,17 @@ router.get('/orders', function (req, res, next) {
     });
 });
 
-router.get('/users', function (req, res, next) {
-    usersCollection.find({}).toArray((err, users) => {
-        if (err) return console.log(err);
-        res.json(users);
-    });
-});
-
-router.get('/users/:login', function (req, res, next) {
-    const login = req.params.login;
+router.post('/users', function (req, res, next) {
+    const { body } = req;
+    if (!body) return;
+    const login = body.login;
     usersCollection.find({login}).toArray((err, users) => {
         if (err) return console.log(err);
-        res.json(users);
+        if(users.length){
+            if(users[0].password === body.password){
+                res.json(users[0]);
+            }
+        }
     });
 });
 
