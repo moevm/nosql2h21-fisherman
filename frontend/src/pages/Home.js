@@ -1,19 +1,67 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from 'react';
 import {Button, Col, Container, FormControl, Jumbotron, Row} from "react-bootstrap";
 import {observer} from "mobx-react-lite";
 import Groups from "../Components/Groups.js";
 import Catalog from "../Components/Catalog.js";
 import Authorization from "../Components/Authorization.jsx";
+import CatalogStore from "../store/CatalogStore";
+import UserStore from "../store/UserStore"
+import OrdersStore from "../store/OrdersStore"
+import { toJS } from "mobx";
 
 const Home = observer(() => {
-    const [isAdm, isAdmSetValue] = useState(true);
+    CatalogStore.get()
+    OrdersStore.get()
 
+    const [cart, SetCart] = useState([])//корзина
+
+    //для авторизации\регистрации
+    const [fio, fioSetValue] = useState(null);
+    const [login, loginSetValue] = useState(null);
+    const [password, passwordSetValue] = useState(null);
+    const [phone, phoneSetValue] = useState(null);
+    const [password2, password2SetValue] = useState(null);
+
+    //добавление продукта
+    const [imageAdd, imageAddSetValue] = useState(null);
+    const [vendorCodeAdd, vendorCodeAddSetValue] = useState(null);
+    const [titleAdd, titleAddSetValue] = useState(null);
+    const [descriptionAdd, descriptionAddSetValue] = useState(null);
+    const [priceAdd, priceAddSetValue] = useState(null); 
+    const [countAdd, countAddSetValue] = useState(null);
+
+
+    //сортировка   
     const [searchVal, searchValSetValue] = useState(null);
     const [sortType, sortTypeSetValue] = useState(1);
     const [sortGroup, sortGroupSetValue] = useState(null);
+
+    //отображение заказов либо продуктов у админа
     const [isOrders, isOrdersSetValue] = useState(true);
 
+    //модальное окно добавления продукта
+    const [isModalAdd, setModalAdd] = React.useState(false)
+    const onCloseAdd = () => {
+        setModalAdd(false)
+        console.log("onClose")
+    }
+    const Add = () => {
+        console.log("onAuth")
+        CatalogStore.add(imageAdd, vendorCodeAdd, titleAdd, descriptionAdd, priceAdd, countAdd)
+    }
+    //модальное окно изменения статуса заказа
+    const [isModalStatus, setModalStatus] = React.useState(false)
+    const onCloseStatus = () => {
+        setModalStatus(false)
+    }
+    const [SelectedStatus, setSelectedStatus] = React.useState(false)
+    const [SelectedIdEditOrderStatus, setSelectedIdEditOrderStatus] = React.useState(false)
+    const EditOrderStatus = () => {
+        OrdersStore.editStatus(SelectedStatus, SelectedIdEditOrderStatus)
+    }
+
+    //модальное окно авторизации
     const [isModal, setModal] = React.useState(false)
     const onClose = () => {
         setModal(false)
@@ -21,7 +69,11 @@ const Home = observer(() => {
     }
     const onAuth = () => {
         console.log("onAuth")
+        UserStore.login(login, password)
+
     }
+
+    //модальное окно регистрации
     const [isModalReg, setModalReg] = React.useState(false)
     const onCloseReg = () => {
         setModalReg(false)
@@ -37,7 +89,9 @@ const Home = observer(() => {
     const onChange=(id)=>{
         sortGroupSetValue(id)
         // менять CatalogStore.array для фильтрации запросом
-      }
+    }
+
+    ///////////////////////////////////////////////
 
 
     const contentDefault = (  
@@ -65,6 +119,8 @@ const Home = observer(() => {
                 <h4 className="text-center"> РыбачкОфф </h4>
             </Col>
             <Col>
+                 {UserStore.user.login === null ?
+                 <>
                 <Button 
                     className={'mx-2 btn btn-warning'} 
                     onClick={() => setModal(true)}>
@@ -75,8 +131,8 @@ const Home = observer(() => {
                     title="Авторизация"
                     content={
                     <>
-                        <input type="text" class="form-control" placeholder="Логин" />
-                        <input type="password" class="form-control mt-2" placeholder="Пароль" />
+                        <input type="text" class="form-control" value={login} placeholder="Логин" onChange={(e)=>loginSetValue(e.target.value)} />
+                        <input type="password" class="form-control mt-2" value={password} onChange={(e)=>passwordSetValue(e.target.value)} placeholder="Пароль" />
                     </>
                     }
                     footer={<button className="btn btn-warning" onClick={()=>onAuth()}>Войти</button>}
@@ -92,11 +148,11 @@ const Home = observer(() => {
                     title="Регистрация"
                     content={
                     <>
-                        <input type="text" class="form-control" placeholder="ФИО" />
-                        <input type="text" class="form-control mt-2" placeholder="Логин" />
-                        <input type="text" class="form-control mt-2" placeholder="Номер телефона" />
-                        <input type="password" class="form-control mt-2" placeholder="Пароль" />
-                        <input type="password" class="form-control mt-2" placeholder="Пароль еще раз" />
+                        <input type="text" class="form-control" value={fio} placeholder="ФИО"  onChange={(e)=>fioSetValue(e.target.value)} />
+                        <input type="text" class="form-control mt-2" value={login}   placeholder="Логин"  onChange={(e)=>loginSetValue(e.target.value)} />
+                        <input type="text" class="form-control mt-2" value={phone} placeholder="Номер телефона"  onChange={(e)=>phoneSetValue(e.target.value)}/>
+                        <input type="password" class="form-control mt-2" value={password} placeholder="Пароль" onChange={(e)=>passwordSetValue(e.target.value)}/>
+                        <input type="password" class="form-control mt-2" value={password2} placeholder="Пароль еще раз"  onChange={(e)=>password2SetValue(e.target.value)}/>
                     </>
                     }
                     footer={
@@ -114,6 +170,17 @@ const Home = observer(() => {
                     }
                     onClose={onCloseReg}
                 />
+                </>
+                :
+                <>
+                    <p className={'pt-2'} >{UserStore.user.login}</p>
+                    <Button 
+                        className={'mx-1 btn btn-warning'} 
+                        onClick={() => {UserStore.exit()}}>
+                        Выйти
+                    </Button>
+                </>
+                }   
             </Col>
         </Row>
         <Row className={'p-2'}>
@@ -166,6 +233,7 @@ const Home = observer(() => {
 
 
     const contentAdm = (  <Container fluid="md">
+        
         <Row className={'mt-2'}>
             <Col className="d-flex col-3"> 
                 <Button type="button" style={{height:"32px"}} className="btn btn-warning btn-sm rounded-circle">
@@ -189,10 +257,10 @@ const Home = observer(() => {
                 <h4 className="text-center"> РыбачкОфф </h4>
             </Col>
             <Col className="d-flex">
-                <p className={'pt-2'} >Администратор</p>
+                <p className={'pt-2'} >Администратор </p>
                 <Button 
                     className={'mx-1 btn btn-warning'} 
-                    onClick={() => setModal(true)}>
+                    onClick={() => {UserStore.exit()}}>
                     Выйти
                 </Button>
             </Col>
@@ -254,28 +322,79 @@ const Home = observer(() => {
                     <th scope="col">Покупатель</th>
                     <th scope="col">Дата</th>
                     <th scope="col">Стоимость</th>
+                    <th scope="col">Адрес</th>
                 </tr>
             </thead>
             <tbody>
-            <tr>
-                <td><button type="button" class="btn-sm btn-danger">Открыт</button></td>
-                <td>111</td>
-                <td>Ольга</td>
-                <td>20.11.2021</td>
-                <td>100</td>
-            </tr>
+                {
+                    OrdersStore.array.map(item=>
+                        <tr>
+                            <td><button id={item._id} type="button" class={"btn-sm "+ OrdersStore.color(item.status)}
+                            onClick={(e)=>{
+                                setModalStatus(true)
+                                setSelectedIdEditOrderStatus(e.target.id)
+                            }}>{item.status}</button></td>
+                            <td>{item._id}</td>
+                            <td>{item.user}</td>
+                            <td>{item.date}</td>
+                            <td>{item.price}</td>
+                            <td>{item.address}</td>
+                        </tr>
+                    )
+                }
+          
             </tbody>
         </table>
+        <Authorization
+            visible={isModalStatus}
+            title="Изменение статуса"
+            content={
+            <>
+                <button type="button" class={"btn-sm btn-success"} 
+                onClick={()=>{
+                    setSelectedStatus("Завершен")
+                    EditOrderStatus()
+                    onCloseStatus()
+                }}>Завершен</button>
+                <button type="button" class={"btn-sm btn-primary"} 
+                onClick={()=>{
+                    setSelectedStatus("Обработан")
+                    EditOrderStatus()
+                    onCloseStatus()
+                }}>Обработан</button>
+                <button type="button" class={"btn-sm btn-info"} 
+                onClick={()=>{
+                    setSelectedStatus("Принят покупателем")
+                    EditOrderStatus()
+                    onCloseStatus()
+                }}>Принят покупателем</button>
+                <button type="button" class={"btn-sm btn-warning"} 
+                onClick={()=>{
+                    setSelectedStatus("Готов к выдаче")
+                    EditOrderStatus()
+                    onCloseStatus()
+                }}>Готов к выдаче</button>
+                <button type="button" class={"btn-sm btn-danger"} 
+                onClick={()=>{
+                    setSelectedStatus("Отменен")
+                    EditOrderStatus()
+                    onCloseStatus()
+                }}>Отменен</button>
+            </>
+            }
+            footer={<></>}
+            onClose={onCloseStatus}
+        />
         </>
 
         :
 
         <Row className={'p-2'}>
-            <Col style={{heigth: "500px", maxHeight: "500px", overflow: "auto"}}>
+            <Col style={{heigth: "500px", maxHeight: "500px", overflow: "auto"}}>  
+                
                 <table class="table table-sm" >
                     <thead>
                         <tr>
-                            <th scope="col">id</th>
                             <th scope="col">Изображение</th>
                             <th scope="col">Артикул</th>
                             <th scope="col">Название</th>
@@ -286,45 +405,80 @@ const Home = observer(() => {
                         </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td></td>
-                        <td>11111</td>
-                        <td>Удочка</td>
-                        <td>Классная</td>
-                        <td>100</td>
-                        <td>1</td>
-                        <td className="d-flex">
-                            <div >
-                                <button type="button" class="btn btn-outline-secondary" style={{width: "29px", height: "30px" }} /*onClick={}*/>
-                                    <svg style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            
-                            <div className="mx-2">
-                                <button type="button" class="btn btn-outline-secondary" style={{width: "29px", height: "30px" }} /*onClick={}*/>
-                                    <svg style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16">
-                                    <path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
+
+                    {CatalogStore.array.map((item)=>(
+                        <tr>
+                            <td><img style={{height: "80px", width: "80px"}} className="card-img-top" src={item.image} alt="Card image cap"/></td>
+                            <td>
+                                {/* <input 
+                                    id = {item.id}
+                                    onChange={(e) => {
+                                        CatalogStore.onChange(e)
+                                    }}
+                                    value= {  item.title }
+                                /> */}
+                            {  item.vendorCode }</td>
+                            <td>{  item.title }</td>
+                            <td>{  item.description }</td>
+                            <td>{  item.price }</td>
+                            <td>{  item.count }</td>
+                            <td className="d-flex">
+                                <div >
+                                    <button id={item._id} type="button" class="btn btn-outline-secondary" style={{width: "29px", height: "30px", marginTop: "65px" }} /*onClick={}*/>
+                                        <svg style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                        <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                
+                                <div className="mx-2">
+                                    <button id={item._id} type="button" class="btn btn-outline-secondary" style={{width: "29px", height: "30px", marginTop: "65px" }} 
+                                    onClick={(e)=>{
+                                        CatalogStore.Delete(e.target.id)
+                                    }}>
+                                        <svg style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16">
+                                        <path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
                         
-                    </tr>
+                        </tr>
+                    ))
+                    }
+                   
                     </tbody>
                 </table>
             </Col>
 
             <div className="mt-2">
-             <button type="button" class="btn btn-outline-warning" style={{ height: "30px" }} /*onClick={}*/>
+             <button type="button" class="btn btn-outline-warning" style={{ height: "30px" }} 
+             onClick={()=>
+                setModalAdd(true)
+             }>
                 <svg  style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-8px", padding: "3px"}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"></path>
                 </svg>
                 Добавить новый товар
              </button> 
+             <Authorization
+                    visible={isModalAdd}
+                    title="Добавление товара"
+                    content={
+                    <>
+                        <input type="text" class="form-control mt-2" value={vendorCodeAdd} onChange={(e)=>vendorCodeAddSetValue(e.target.value)} placeholder="Артикул" />
+                        <input type="text" class="form-control mt-2" value={titleAdd} placeholder="Название" onChange={(e)=>titleAddSetValue(e.target.value)} />
+                        <textarea   class="form-control mt-2" value={descriptionAdd} onChange={(e)=>descriptionAddSetValue(e.target.value)} placeholder="Описание" />
+                        <input type="text" class="form-control mt-2" value={priceAdd} placeholder="Стоимость" onChange={(e)=>priceAddSetValue(e.target.value)} />
+                        <input type="text" class="form-control mt-2" value={countAdd} onChange={(e)=>countAddSetValue(e.target.value)} placeholder="Количество" />
+                        <input type="text" class="form-control mt-2" value={imageAdd} placeholder="Ссылка на изображение" onChange={(e)=>imageAddSetValue(e.target.value)} />
+                        <img className="card-img-top" style={{width: "80px", height: "80px"}} src={imageAdd}/>
+                    </>
+                    }
+                    footer={<button className="btn btn-warning mt-2" onClick={()=>Add()}>Создать</button>}
+                    onClose={onCloseAdd}
+                />
             </div>
 
         </Row>
@@ -333,7 +487,7 @@ const Home = observer(() => {
 
         </Container> )
 
-    return   isAdm === false ? contentDefault : contentAdm
+    return   UserStore.user.login === "admin" ? contentAdm : contentDefault 
    
 });
 
