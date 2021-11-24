@@ -30,6 +30,12 @@ const Home = observer(() => {
     const [descriptionAdd, descriptionAddSetValue] = useState(null);
     const [priceAdd, priceAddSetValue] = useState(null); 
     const [countAdd, countAddSetValue] = useState(null);
+    
+    //добавление заказа
+    const [fioAddOrder, fioAddOrderSetValue] = useState(null);
+    const [phoneAddOrder, phoneAddOrderSetValue] = useState(null);
+    const [addressAddOrder, addressAddOrderSetValue] = useState(null);
+    const [commentAddOrder, commentAddOrderSetValue] = useState(null);
 
 
     //сортировка   
