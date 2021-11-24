@@ -1,14 +1,21 @@
 import { makeObservable, observable, computed, action, toJS} from "mobx";
+import CatalogStore from "./CatalogStore";
 
 class UserStore {
   user = {"login": null}
+  cart = []
   isLoading = false;
 
   constructor() {
     makeObservable(this, {
       user: observable,
+      cart: observable,
       isLoading: observable,
       login: action,
+      pushCart: action,
+      deleteCart: action,
+      plusCountCart: action,
+      minusCountCart: action
     });
   }
 
@@ -31,11 +38,7 @@ class UserStore {
 
   };
 
-  exit = () =>{
-    this.user = {"login": null}
-  }
-  
-   pushCart = (elem)=>{
+  pushCart = (elem)=>{
     this.cart = [...toJS(this.cart)].filter((o)=>(o.id!==elem.id))
     this.cart.push(elem)
   }
@@ -46,7 +49,7 @@ class UserStore {
     });
     return sum
   }
-   plusCountCart = (id)=>{
+  plusCountCart = (id)=>{
     console.log(id)
     this.cart.forEach(element => {
       if(element._id === id){
@@ -63,6 +66,14 @@ class UserStore {
       }
     });
   }
+  deleteCart = (id)=>{
+    this.cart = [...toJS(this.cart)].filter((o)=>(o.id!==id))
+  }
+  
+  exit = () =>{
+    this.user = {"login": null}
+  }
 
 }
 export default new UserStore();
+
