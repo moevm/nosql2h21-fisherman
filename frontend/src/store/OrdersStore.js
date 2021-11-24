@@ -12,6 +12,7 @@ class OrdersStore {
       add: action,
       delete: action,
       color: action,
+      editStatus: action
     });
   }
 
@@ -42,21 +43,41 @@ class OrdersStore {
 
   };
 
-  add = async () => {
+  add = async (obj) => {
     this.isLoading = true;
-    return await fetch('http://localhost:8080/orders').then( async res => { 
-      this.array = await res.json();
+    return await fetch('http://localhost:8080/orders/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify(obj)
+    }).then( async res => { 
       this.isLoading = false;
+      // вернуть номер
+      return await res.json();
     }).catch((e) => console.log(e.message));
+  };
 
+  editStatus = async (SelectedStatus, SelectedIdEditOrderStatus) => {
+    this.isLoading = true;
+    return await fetch('http://localhost:8080/orders/editStatus', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify({
+        "newStatus": SelectedStatus,
+        "id": SelectedIdEditOrderStatus
+      })
+    }).then( async res => { 
+      this.isLoading = false;
+      // вернуть номер
+      return await res.json();
+    }).catch((e) => console.log(e.message));
   };
 
   delete = async (id) => {
-    this.isLoading = true;
-    return await fetch('http://localhost:8080/orders').then( async res => { 
-      this.array = await res.json();
-      this.isLoading = false;
-    }).catch((e) => console.log(e.message));
+   
 
   };
 
@@ -64,3 +85,4 @@ class OrdersStore {
 
 }
 export default new OrdersStore();
+
