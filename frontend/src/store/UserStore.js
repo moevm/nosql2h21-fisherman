@@ -34,6 +34,11 @@ class UserStore {
   exit = () =>{
     this.user = {"login": null}
   }
+  
+   pushCart = (elem)=>{
+    this.cart = [...toJS(this.cart)].filter((o)=>(o.id!==elem.id))
+    this.cart.push(elem)
+  }
 
 }
 export default new UserStore();
