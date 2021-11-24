@@ -39,6 +39,13 @@ class UserStore {
     this.cart = [...toJS(this.cart)].filter((o)=>(o.id!==elem.id))
     this.cart.push(elem)
   }
+  sumCart = ()=>{
+    let sum = 0
+    this.cart.forEach(element => {
+      sum += element.count * CatalogStore.getProduct(element.id).price
+    });
+    return sum
+  }
 
 }
 export default new UserStore();
