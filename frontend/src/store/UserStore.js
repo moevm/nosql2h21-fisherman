@@ -46,6 +46,23 @@ class UserStore {
     });
     return sum
   }
+   plusCountCart = (id)=>{
+    console.log(id)
+    this.cart.forEach(element => {
+      if(element._id === id){
+        element.count += 1
+        console.log(element.count)
+      }
+    });
+  }
+  minusCountCart = (id)=>{
+    this.cart.forEach(element => {
+      if(element._id === id && element.count!==0){
+        element.count -= 1
+        console.log(element.count)
+      }
+    });
+  }
 
 }
 export default new UserStore();
