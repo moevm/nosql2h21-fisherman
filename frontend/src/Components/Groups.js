@@ -7,11 +7,16 @@ import GroupsStore from "../store/GroupsStore";
 
 
 const Groups = observer((state) => {
+    
     return (
         <>
         {
             toJS(GroupsStore.array).map((group)=>
-                <div key={group.id} className="mt-1">{group.name}</div>
+                <div key={group.id} id={group.id} className="mt-1"
+                onClick={(e)=>{
+                    state.onChange(e.target.id)
+                }}
+                >{group.name}</div>
             )
         }
         </> 
