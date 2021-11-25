@@ -57,9 +57,8 @@ router.get('/products/:title', function (req, res, next) {
     });
 });
 
-router.post('/deleteProduct', (req, res) => {
-    const id = req.body.id;
-    productsCollection.deleteOne({_id: id});
+router.post('/products/delete', (req, res) => {
+    productsCollection.deleteOne({_id: req.body.id});
 });
 
 router.post('/products/add', (req, res) => {
