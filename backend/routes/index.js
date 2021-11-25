@@ -62,6 +62,17 @@ router.post('/deleteProduct', (req, res) => {
     productsCollection.deleteOne({_id: id});
 });
 
+router.post('/products/add', (req, res) => {
+    productsCollection.insertOne({
+        image: req.body.image,
+        vendorCode: req.body.vendorCode,
+        title: req.body.title,
+        description: req.body.description,
+        price: req.body.price,
+        count: req.body.count
+    });
+});
+
 router.post('/addUser', (req, res) => {
     usersCollection.insertOne({
         login: req.body.login,
