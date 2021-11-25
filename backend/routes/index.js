@@ -79,6 +79,17 @@ router.post('/orders/editStatus', (req, res) => {
     );
 });
 
+router.post('/orders/add', (req, res) => {
+    const result = ordersCollection.insertOne({
+        phone: req.body.phone,
+        address: req.body.address,
+        comment: req.body.comment,
+        products: req.body.products,
+    });
+
+    res.json(result.insertedId);
+});
+
 router.post('/addUser', (req, res) => {
     usersCollection.insertOne({
         login: req.body.login,
