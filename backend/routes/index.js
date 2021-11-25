@@ -8,8 +8,8 @@ let productsCollection;
 let usersCollection;
 let ordersCollection;
 
-mongoClient.connect(function(err, client){
-    if(err) return console.log(err);
+mongoClient.connect(function (err, client) {
+    if (err) return console.log(err);
     clientDB = client.db("Fisherman");
 
     productsCollection = clientDB.collection("Products");
@@ -36,13 +36,13 @@ router.get('/orders', function (req, res, next) {
 });
 
 router.post('/users', function (req, res, next) {
-    const { body } = req;
+    const {body} = req;
     if (!body) return;
     const login = body.login;
     usersCollection.find({login}).toArray((err, users) => {
         if (err) return console.log(err);
-        if(users.length){
-            if(users[0].password === body.password){
+        if (users.length) {
+            if (users[0].password === body.password) {
                 res.json(users[0]);
             }
         }
@@ -70,6 +70,13 @@ router.post('/products/add', (req, res) => {
         price: req.body.price,
         count: req.body.count
     });
+});
+
+router.post('/orders/editStatus', (req, res) => {
+    ordersCollection.updateOne(
+        {_id: req.body.id},
+        {$set: {status: req.body.newStatus}}
+    );
 });
 
 router.post('/addUser', (req, res) => {
