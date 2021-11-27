@@ -21,25 +21,25 @@ router.get('/', function (req, res, next) {
     res.render('index', {title: 'Express'});
 });
 
-router.get('/products', function (req, res, next) {
-    productsCollection.find({}).toArray((err, products) => {
+router.get('/products', async function (req, res, next) {
+    await productsCollection.find({}).toArray((err, products) => {
         if (err) return console.log(err);
         res.json(products);
     });
 });
 
-router.get('/orders', function (req, res, next) {
-    ordersCollection.find({}).toArray((err, orders) => {
+router.get('/orders', async function (req, res, next) {
+    await ordersCollection.find({}).toArray((err, orders) => {
         if (err) return console.log(err);
         res.json(orders);
     });
 });
 
-router.post('/users', function (req, res, next) {
+router.post('/users', async function (req, res, next) {
     const {body} = req;
     if (!body) return;
     const login = body.login;
-    usersCollection.find({login}).toArray((err, users) => {
+    await usersCollection.find({login}).toArray((err, users) => {
         if (err) return console.log(err);
         if (users.length) {
             if (users[0].password === body.password) {
@@ -49,20 +49,21 @@ router.post('/users', function (req, res, next) {
     });
 });
 
-router.get('/products/:title', function (req, res, next) {
+router.get('/products/:title', async function (req, res, next) {
     const title = new RegExp([req.params.title].join(""), "i");
-    productsCollection.find({title: title}).toArray((err, products) => {
+    await productsCollection.find({title: title}).toArray((err, products) => {
         if (err) return console.log(err);
         res.json(products);
     });
 });
 
-router.post('/products/delete', (req, res) => {
-    productsCollection.deleteOne({_id: req.body.id});
+router.post('/products/delete', async (req, res) => {
+    await productsCollection.deleteOne({_id: req.body.id});
+    res.end();
 });
 
-router.post('/products/add', (req, res) => {
-    productsCollection.insertOne({
+router.post('/products/add', async (req, res) => {
+    const result = await productsCollection.insertOne({
         image: req.body.image,
         vendorCode: req.body.vendorCode,
         title: req.body.title,
@@ -70,33 +71,37 @@ router.post('/products/add', (req, res) => {
         price: req.body.price,
         count: req.body.count
     });
+    res.json(result.insertedId);
 });
 
-router.post('/orders/editStatus', (req, res) => {
-    ordersCollection.updateOne(
+router.post('/orders/editStatus', async(req, res) => {
+    await ordersCollection.updateOne(
         {_id: req.body.id},
         {$set: {status: req.body.newStatus}}
     );
+    res.end();
 });
 
-router.post('/orders/add', (req, res) => {
-    const result = ordersCollection.insertOne({
+router.post('/orders/add', async(req, res) => {
+    const result = await ordersCollection.insertOne({
         phone: req.body.phone,
         address: req.body.address,
         comment: req.body.comment,
         products: req.body.products,
+        user: req.body.people_id
     });
 
     res.json(result.insertedId);
 });
 
-router.post('/addUser', (req, res) => {
-    usersCollection.insertOne({
+router.post('/addUser', async (req, res) => {
+    await usersCollection.insertOne({
         login: req.body.login,
         password: req.body.password,
         email: req.body.email,
         phone: req.body.phone
     });
+    res.end();
 });
 
 router.get('*', (req, res) => {
