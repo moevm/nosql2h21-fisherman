@@ -48,8 +48,15 @@ const Home = observer(() => {
         setModalAdd(false)
         console.log("onClose")
     }
-    const Add = () => {
+    const AddProduct = () => {
         console.log("onAuth")
+        setModalAdd(false)
+        imageAddSetValue(null)
+        vendorCodeAddSetValue(null)
+        titleAddSetValue(null)
+        descriptionAddSetValue(null)
+        priceAddSetValue(null)
+        countAddSetValue(null)
         CatalogStore.add(imageAdd, vendorCodeAdd, titleAdd, descriptionAdd, priceAdd, countAdd)
     }
      //модальное окно просмотра корзины
@@ -63,10 +70,13 @@ const Home = observer(() => {
             "fio": fioAddOrder,
             "phone": phoneAddOrder,
             "address": addressAddOrder,
-            "comment": commentAddOrder
+            "comment": commentAddOrder,
+            "people_id": UserStore.user._id
         })
+        console.log(number)
         setModalOrderNumber(number ? number : '')
         onCloseCart()
+        UserStore.cart = []
         setModalThankYou(true)
      }
     //модальное окно благодарство
@@ -78,7 +88,7 @@ const Home = observer(() => {
     //модальное окно изменения статуса заказа
     const [isModalStatus, setModalStatus] = React.useState(false)
     const onCloseStatus = () => {
-        setModalCart(false)
+        setModalStatus(false)
     }
     const [SelectedStatus, setSelectedStatus] = React.useState(false)
     const [SelectedIdEditOrderStatus, setSelectedIdEditOrderStatus] = React.useState(false)
@@ -356,7 +366,6 @@ const Home = observer(() => {
                 <Groups onChange={onChange}></Groups>
             </Col>
             <Col className="col-lg-9" >
-                {console.log(toJS(UserStore.cart))}
                 <Catalog sort = {sortType} group = {sortGroup}></Catalog>
             </Col> 
         </Row>
@@ -464,7 +473,7 @@ const Home = observer(() => {
                             onClick={(e)=>{
                                 setModalStatus(true)
                                 setSelectedIdEditOrderStatus(e.target.id)
-                            }}>{item.status}</button></td>
+                            }}>{item.status ? item.status : "Выбрать"}</button></td>
                             <td>{item._id}</td>
                             <td>{item.user}</td>
                             <td>{item.date}</td>
@@ -537,7 +546,7 @@ const Home = observer(() => {
                     </thead>
                     <tbody>
 
-                    {CatalogStore.array.map((item)=>(
+                    {toJS(CatalogStore.array).map((item)=>(
                         <tr>
                             <td><img style={{height: "80px", width: "80px"}} className="card-img-top" src={item.image} alt="Card image cap"/></td>
                             <td>
@@ -555,20 +564,22 @@ const Home = observer(() => {
                             <td>{  item.count }</td>
                             <td className="d-flex">
                                 <div >
-                                    <button id={item._id} type="button" class="btn btn-outline-secondary" style={{width: "29px", height: "30px", marginTop: "65px" }} /*onClick={}*/>
-                                        <svg style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                        <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                    <button id={item._id} type="button" className="btn btn-outline-secondary" style={{width: "29px", height: "30px", marginTop: "65px" }} /*onClick={}*/>
+                                        <svg id={item._id} style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                        <path id={item._id} d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
                                         </svg>
                                     </button>
                                 </div>
                                 
                                 <div className="mx-2">
-                                    <button id={item._id} type="button" class="btn btn-outline-secondary" style={{width: "29px", height: "30px", marginTop: "65px" }} 
-                                    onClick={(e)=>{
-                                        CatalogStore.Delete(e.target.id)
+        
+                                    <button id={item._id} type="button" className="btn btn-outline-secondary" style={{width: "29px", height: "30px", marginTop: "65px" }} 
+                                    onClick={(event)=>{
+                                        console.log(event.target)
+                                        CatalogStore.delete(event.target.id)
                                     }}>
-                                        <svg style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16">
-                                        <path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/>
+                                        <svg id={item._id} style={{width: "20px", height: "20px", marginLeft: "-9px", marginTop: "-12px"}}  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16">
+                                        <path id={item._id} d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15h9.286zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1zM.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8H.8z"/>
                                         </svg>
                                     </button>
                                 </div>
@@ -607,7 +618,7 @@ const Home = observer(() => {
                         <img className="card-img-top" style={{width: "80px", height: "80px"}} src={imageAdd}/>
                     </>
                     }
-                    footer={<button className="btn btn-warning mt-2" onClick={()=>Add()}>Создать</button>}
+                    footer={<button className="btn btn-warning mt-2" onClick={()=>AddProduct()}>Создать</button>}
                     onClose={onCloseAdd}
                 />
             </div>
