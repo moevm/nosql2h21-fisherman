@@ -53,12 +53,12 @@ class OrdersStore {
       body: JSON.stringify(obj)
     }).then( async res => { 
       this.isLoading = false;
-      // вернуть номер
       return await res.json();
     }).catch((e) => console.log(e.message));
   };
 
   editStatus = async (SelectedStatus, SelectedIdEditOrderStatus) => {
+    console.log(SelectedStatus)
     this.isLoading = true;
     return await fetch('http://localhost:8080/orders/editStatus', {
       method: 'POST',
@@ -71,8 +71,8 @@ class OrdersStore {
       })
     }).then( async res => { 
       this.isLoading = false;
+      this.get()
       // вернуть номер
-      return await res.json();
     }).catch((e) => console.log(e.message));
   };
 
