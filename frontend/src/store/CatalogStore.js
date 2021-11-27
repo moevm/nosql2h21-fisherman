@@ -49,7 +49,7 @@ class Catalog {
   }
 
   getProduct = (id) =>{
-    console.log(id)
+
     let res = {
       image: '',
       count: 0,
@@ -61,7 +61,7 @@ class Catalog {
         res = element
       }
     }
-    console.log(res)
+ 
     return res
   }
 
@@ -91,12 +91,13 @@ class Catalog {
       })
     }).then( async res => { 
       this.isLoading = false;
-      return await res.json();
+      this.get()
     }).catch((e) => console.log(e.message));
 
   };
 
   delete = async (id) => {
+    console.log(id)
     this.isLoading = true;
     return await fetch('http://localhost:8080/products/delete', {
       method: 'POST',
@@ -104,11 +105,11 @@ class Catalog {
         'Content-Type': 'application/json;charset=utf-8'
       },
       body: JSON.stringify({
-        "id": id,
+        "id": id
       })
     }).then( async res => { 
       this.isLoading = false;
-      return await res.json();
+      this.get()
     }).catch((e) => console.log(e.message));
 
   };
