@@ -78,7 +78,7 @@ router.post('/products/add', async (req, res) => {
 
 router.post('/orders/editStatus', async(req, res) => {
     await ordersCollection.updateOne(
-        {"_id": req.body.id},
+        {"_id": new ObjectID(req.body.id)},
         {$set: {"status": req.body.newStatus}}
     );
     res.end();
