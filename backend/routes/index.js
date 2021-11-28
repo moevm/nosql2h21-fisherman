@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router({mergeParams: true});
 const MongoClient = require('mongodb').MongoClient;
 const mongoClient = new MongoClient("mongodb://localhost:27017/");
+var ObjectID = require('mongodb').ObjectID;
+
 
 let clientDB;
 let productsCollection;
@@ -58,7 +60,7 @@ router.get('/products/:title', async function (req, res, next) {
 });
 
 router.post('/products/delete', async (req, res) => {
-    await productsCollection.deleteOne({_id: req.body.id});
+    await productsCollection.deleteOne({_id: new ObjectID(req.body.id)});
     res.end();
 });
 
@@ -76,8 +78,8 @@ router.post('/products/add', async (req, res) => {
 
 router.post('/orders/editStatus', async(req, res) => {
     await ordersCollection.updateOne(
-        {_id: req.body.id},
-        {$set: {status: req.body.newStatus}}
+        {"_id": new ObjectID(req.body.id)},
+        {$set: {"status": req.body.newStatus}}
     );
     res.end();
 });
